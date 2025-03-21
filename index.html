@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רישום ציוד להופעה</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <style>
+    .logo-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.logo-container img {
+    height: 60px;
+}
+
+.logo-center {
+    margin: 0 auto;
+    display: block;
+    .logo-left {
+    order: 3; /* לוגו בצד שמאל */
+}
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: WHITE;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .remove-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            .logo-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+      <div class="logo-container">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR54ryCD7eiD-RGgYDvUUgEenJDBQ3BiejDrw&s" alt="לוגו צד ימין">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Badge_of_the_Israeli_Defense_Forces_2022_version.svg" alt="לוגו מרכזי" class="logo-center">
+   </a>
+    
+        <img src="https://i.postimg.cc/1ztZhdr2/IMG-8120.jpg" alt="לוגו צד שמאל" class="logo-left">
+    </a>
+</div>
+
+        <h2>רישום ציוד להופעה</h2>
+        <label>שם הסאונדמן:</label>
+        <input type="text" id="soundman_name" placeholder="הכנס שם">
+        <label>מספר אישי:</label>
+        <input type="text" id="soundman_id" placeholder="הכנס מספר אישי">
+        <label>הרכב יוצא:</label>
+<input type="text" id="band_name" placeholder="הכנס את שם ההרכב">
+
+        <label>בחר ציוד:</label>
+        <select id="equipment_select">
+            <option value="">בחר ציוד...</option>
+        </select>
+        <button onclick="addEquipment()">הוסף</button>
+        <table id="equipment_table">
+            <thead>
+                <tr>
+                    <th>מק"ט</th>
+                    <th>מוצר</th>
+                    <th>הסר</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button onclick="exportToCSV()">ייצוא ל-CSV</button>
+        <button onclick="exportToExcel()">ייצוא לאקסל</button>
+        <button onclick="sendToGoogleSheet()">שלח לאחסון</button>
+
+
+    </div>
+    <script>
+        const equipmentList = [
+           { code: "0001", name: "SHURE SM 58" },
+            { code: "0002", name: "SHURE SM 58" },
+            { code: "0003", name: "SHURE SM 58" },
+            { code: "0004", name: "SHURE SM 58" },
+            { code: "0005", name: "SHURE SM 58" },
+            { code: "0006", name: "SHURE SM 58" },
+            { code: "0007", name: "SHURE SM 58" },
+            { code: "0008", name: "SHURE SM 58" },
+            { code: "0009", name: "SHURE SM 58" },
+            { code: "0010", name: "SHURE SM 58" },
+            { code: "0011", name: "SHURE SM 58" },
+            { code: "0012", name: "SHURE SM 58" },
+            { code: "0013", name: "SHURE SM 58" },
+            { code: "0014", name: "SHURE SM 58" },
+            { code: "0015", name: "SHURE SM 58" },
+            { code: "0016", name: "SHURE SM 58" },
+            { code: "0017", name: "SHURE SM 58" },
+            { code: "0018", name: "SHURE SM 58" },
+            { code: "0019", name: "SHURE SM 58" },
+            { code: "0020", name: "SHURE SM 58" },
+            { code: "0021", name: "SHURE SM 57" },
+            { code: "0022", name: "SHURE SM 57" },
+            { code: "0023", name: "SHURE SM 57" },
+            { code: "0024", name: "SHURE SM 57" },
+            { code: "0025", name: "SHURE SM 57" },
+            { code: "0026", name: "SHURE SM 57" },
+            { code: "0027", name: "SHURE SM 57" },
+            { code: "0028", name: "SHURE SM 57" },
+            { code: "0029", name: "SHURE SM 57" },
+            { code: "0030", name: "SHURE SM 57" },
+            { code: "0031", name: "SHURE SM 57" },
+            { code: "0032", name: "SHURE SM 57" },
+            { code: "0033", name: "SHURE SM 57" },
+            { code: "0034", name: "SHURE SM 57" },
+            { code: "0035", name: "SHURE SM 57" },
+            { code: "0036", name: "KICK MIC" },
+            { code: "0037", name: "KICK MIC" },
+            { code: "0038", name: "KICK MIC" },
+            { code: "0039", name: "KICK MIC" },
+            { code: "0040", name: "OH" },
+            { code: "0041", name: "OH" },
+            { code: "0042", name: "OH" },
+            { code: "0043", name: "OH" },
+            { code: "0044", name: "OH" },
+            { code: "0045", name: "OH" },
+            { code: "0046", name: "OH" },
+            { code: "0047", name: "OH" },
+            { code: "0048", name: "OH" },
+            { code: "0049", name: "QU 24" },
+            { code: "0050", name: "QU 24" },
+            { code: "0051", name: "QU 24" },
+            { code: "0052", name: "QU 24" },
+            { code: "0053", name: "QU 16" },
+            { code: "0054", name: "QU 16" },
+            { code: "0055", name: "QU 16" },
+            { code: "0056", name: "QU 16" },
+            { code: "0057", name: "CASE INST 1" },
+            { code: "0058", name: "CASE INST 2" },
+            { code: "0059", name: "CASE INST 3" },
+            { code: "0060", name: "CASE INST 4" },
+            { code: "0061", name: "CASE PB 1" },
+            { code: "0062", name: "CASE PB 2" },
+            { code: "0063", name: "CASE PB 3" },
+            { code: "0064", name: "CASE PB 4" },
+            { code: "0065", name: "GLD" },
+            { code: "0066", name: "JST" },
+            { code: "0067", name: "JST" },
+            { code: "0068", name: "JST" },
+            { code: "0069", name: "JST" },
+            { code: "0070", name: "MAKLET MP" },
+            { code: "0071", name: "MAKLET MP" },
+            { code: "0072", name: "MAKLET MP" },
+            { code: "0073", name: "MAKLET MP" },
+            { code: "0074", name: "HANDY" },
+            { code: "0075", name: "HANDY" },
+            { code: "0076", name: "HANDY" },
+            { code: "0077", name: "HANDY" }
+        ];
+        
+        const select = document.getElementById("equipment_select");
+        equipmentList.forEach(item => {
+            let option = document.createElement("option");
+            option.value = item.code;
+            option.textContent = `${item.code} - ${item.name}`;
+            select.appendChild(option);
+        });
+
+function addEquipment() {
+    let selectedCode = select.value;
+    if (!selectedCode) return;
+    
+    let table = document.getElementById("equipment_table").getElementsByTagName("tbody")[0];
+    
+    // בדיקה אם המק"ט כבר קיים בטבלה
+    let existingRows = Array.from(table.getElementsByTagName("tr"));
+    let alreadyExists = existingRows.some(row => row.cells[0]?.innerText === selectedCode);
+    
+    if (alreadyExists) {
+        alert("הפריט כבר נוסף לרשימה!");
+        return;
+    }
+
+    let selectedItem = equipmentList.find(item => item.code === selectedCode);
+    let row = table.insertRow();
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    
+    cell1.textContent = selectedItem.code;
+    cell2.textContent = selectedItem.name;
+    
+    let deleteButton = document.createElement("button");
+    deleteButton.textContent = "הסר";
+    deleteButton.className = "remove-btn";
+    deleteButton.onclick = function() { row.remove(); };
+    
+    cell3.appendChild(deleteButton);
+
+        }
+
+        function exportToCSV() {
+    let table = document.getElementById("equipment_table");
+    let rows = Array.from(table.rows).slice(1);
+    
+    let soundmanName = document.getElementById("soundman_name").value || "לא צויין";
+    let soundmanId = document.getElementById("soundman_id").value || "לא צויין";
+    let bandName = document.getElementById("band_name").value || "לא צויין";
+
+    let date = new Date().toISOString().split('T')[0]; // תאריך בפורמט YYYY-MM-DD
+
+    let csvContent = `שם הסאונדמן,מספר אישי,הרכב יוצא,תאריך\n${soundmanName},${soundmanId},${bandName},${date}\n\nמק"ט,מוצר,תאריך\n`;
+
+    rows.forEach(row => {
+        let cells = Array.from(row.cells);
+        csvContent += `${cells[0].innerText},${cells[1].innerText},${date}\n`; // הוספת עמודת תאריך
+    });
+
+    let fileName = `מפרט טכני - ${date} - ${bandName}.csv`;
+
+    let blob = new Blob([csvContent], { type: "text/csv" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+}
+
+    </script>
+    <script>
+    function exportToExcel() {
+    let table = document.getElementById("equipment_table");
+    let rows = Array.from(table.rows).slice(1);
+
+    let soundmanName = document.getElementById("soundman_name").value || "לא צויין";
+    let soundmanId = document.getElementById("soundman_id").value || "לא צויין";
+    let bandName = document.getElementById("band_name").value || "לא צויין";
+
+    let date = new Date().toISOString().split('T')[0]; // תאריך בפורמט YYYY-MM-DD
+
+    let data = [
+        ["שם הסאונדמן", "מספר אישי", "הרכב יוצא", "תאריך"],
+        [soundmanName, soundmanId, bandName, date],
+        [],
+        ["מק\"ט", "מוצר", "תאריך"]
+    ];
+
+    rows.forEach(row => {
+        let cells = Array.from(row.cells);
+        data.push([cells[0].innerText, cells[1].innerText, date]); // הוספת עמודת תאריך
+    });
+
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, " מפרט טכני");
+
+    let fileName = `מפרט טכני  - ${date} - ${bandName}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+function sendToGoogleSheet() {
+    let table = document.getElementById("equipment_table");
+    let rows = Array.from(table.rows).slice(1);
+
+    let soundmanName = document.getElementById("soundman_name").value || "לא צויין";
+    let soundmanId = document.getElementById("soundman_id").value || "לא צויין";
+    let bandName = document.getElementById("band_name").value || "לא צויין";
+
+    if (rows.length === 0) {
+        alert("לא נבחר ציוד לשליחה!");
+        return;
+    }
+
+    let items = rows.map(row => {
+        let cells = row.cells;
+        return {
+            code: cells[0].innerText,
+            name: cells[1].innerText
+        };
+    });
+
+    let payload = {
+        soundmanName,
+        soundmanId,
+        bandName,
+        items
+    };
+
+    fetch("https://script.google.com/macros/s/https://https://script.google.com/macros/s/AKfycbzqTX-Vom_rTxido6ANnk11xw20Kfc4OxJ7Pbmwxzh_Ycf9CUSC9YnTMIq3oXtAyOFW/exec", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then(res => res.text())
+      .then(res => {
+        alert("הנתונים נשלחו בהצלחה!");
+        // אופציונלי: איפוס טופס
+      })
+      .catch(err => {
+        alert("שגיאה בשליחה: " + err);
+      });
+}
+
+
+</script>
+
+</body>
+</html>
