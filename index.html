@@ -263,7 +263,7 @@
         equipmentList.forEach(item => {
             let option = document.createElement("option");
             option.value = item.code;
-            option.textContent = ${item.code} - ${item.name};
+            option.textContent = `${item.code} - ${item.name}`;
             select.appendChild(option);
         });
 
@@ -355,14 +355,14 @@ function startScan() {
 
     let date = new Date().toISOString().split('T')[0]; // תאריך בפורמט YYYY-MM-DD
 
-    let csvContent = שם הסאונדמן,מספר אישי,הרכב יוצא,תאריך\n${soundmanName},${soundmanId},${bandName},${date}\n\nמק"ט,מוצר,תאריך\n;
+    let csvContent = `שם הסאונדמן,מספר אישי,הרכב יוצא,תאריך\n${soundmanName},${soundmanId},${bandName},${date}\n\nמק"ט,מוצר,תאריך\n`;
 
     rows.forEach(row => {
         let cells = Array.from(row.cells);
-        csvContent += ${cells[0].innerText},${cells[1].innerText},${date}\n; // הוספת עמודת תאריך
+        csvContent += `${cells[0].innerText},${cells[1].innerText},${date}\n`; // הוספת עמודת תאריך
     });
 
-    let fileName = מפרט טכני - ${date} - ${bandName}.csv;
+    let fileName = `מפרט טכני - ${date} - ${bandName}.csv`;
 
     let blob = new Blob([csvContent], { type: "text/csv" });
     let link = document.createElement("a");
@@ -399,7 +399,7 @@ function startScan() {
     let ws = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, " מפרט טכני");
 
-    let fileName = מפרט טכני  - ${date} - ${bandName}.xlsx;
+    let fileName = `מפרט טכני  - ${date} - ${bandName}.xlsx`;
     XLSX.writeFile(wb, fileName);
 }
 
