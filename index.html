@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>רישום ציוד להופעה</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js">
+    </script>
+    <script src="https://unpkg.com/html5-qrcode">
+    </script>
     <style>
     .logo-container {
     display: flex;
@@ -96,13 +99,32 @@
             border: none;
             padding: 5px;
             border-radius: 5px;
-            cursor: pointer;
+            cursor: pointer;}
             .logo-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
 }
+#scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: red;
+    animation: scan-move 2s infinite ease-in-out;
+    z-index: 10;
+    display: none;
+}
+
+@keyframes scan-move {
+    0%   { top: 0; }
+    50%  { top: calc(100% - 2px); }
+    100% { top: 0; }
+}
+
+
 
     </style>
 </head>
@@ -115,6 +137,9 @@
     
         <img src="https://i.postimg.cc/1ztZhdr2/IMG-8120.jpg" alt="לוגו צד שמאל" class="logo-left">
     </a>
+    <audio id="ding-sound" src="https://www.orangefreesounds.com/wp-content/uploads/2021/12/Barcode-scanner-beep-sound.mp3" preload="auto"></audio>
+    
+
 </div>
 
         <h2>רישום ציוד להופעה</h2>
@@ -129,6 +154,15 @@
         <select id="equipment_select">
             <option value="">בחר ציוד...</option>
         </select>
+        <label>הכנס מק"ט ישירות (סורק ברקוד):</label>
+<input type="text" id="code_input" placeholder="הקלד מקט או סרוק ברקוד">
+<button onclick="startScan()">📷 סרוק ברקוד</button>
+<div id="reader-wrapper" style="position: relative; width: 100%; margin-top: 10px;">
+  <div id="reader" style="width: 100%;"></div>
+  <div id="scan-line" style="display: none;"></div>
+</div>
+
+
         <button onclick="addEquipment()">הוסף</button>
         <table id="equipment_table">
             <thead>
@@ -142,96 +176,94 @@
         </table>
         <button onclick="exportToCSV()">ייצוא ל-CSV</button>
         <button onclick="exportToExcel()">ייצוא לאקסל</button>
-        <button onclick="sendToGoogleSheet()">שלח לאחסון</button>
-
 
     </div>
     <script>
-        const equipmentList = [
-           { code: "0001", name: "SHURE SM 58" },
-            { code: "0002", name: "SHURE SM 58" },
-            { code: "0003", name: "SHURE SM 58" },
-            { code: "0004", name: "SHURE SM 58" },
-            { code: "0005", name: "SHURE SM 58" },
-            { code: "0006", name: "SHURE SM 58" },
-            { code: "0007", name: "SHURE SM 58" },
-            { code: "0008", name: "SHURE SM 58" },
-            { code: "0009", name: "SHURE SM 58" },
-            { code: "0010", name: "SHURE SM 58" },
-            { code: "0011", name: "SHURE SM 58" },
-            { code: "0012", name: "SHURE SM 58" },
-            { code: "0013", name: "SHURE SM 58" },
-            { code: "0014", name: "SHURE SM 58" },
-            { code: "0015", name: "SHURE SM 58" },
-            { code: "0016", name: "SHURE SM 58" },
-            { code: "0017", name: "SHURE SM 58" },
-            { code: "0018", name: "SHURE SM 58" },
-            { code: "0019", name: "SHURE SM 58" },
-            { code: "0020", name: "SHURE SM 58" },
-            { code: "0021", name: "SHURE SM 57" },
-            { code: "0022", name: "SHURE SM 57" },
-            { code: "0023", name: "SHURE SM 57" },
-            { code: "0024", name: "SHURE SM 57" },
-            { code: "0025", name: "SHURE SM 57" },
-            { code: "0026", name: "SHURE SM 57" },
-            { code: "0027", name: "SHURE SM 57" },
-            { code: "0028", name: "SHURE SM 57" },
-            { code: "0029", name: "SHURE SM 57" },
-            { code: "0030", name: "SHURE SM 57" },
-            { code: "0031", name: "SHURE SM 57" },
-            { code: "0032", name: "SHURE SM 57" },
-            { code: "0033", name: "SHURE SM 57" },
-            { code: "0034", name: "SHURE SM 57" },
-            { code: "0035", name: "SHURE SM 57" },
-            { code: "0036", name: "KICK MIC" },
-            { code: "0037", name: "KICK MIC" },
-            { code: "0038", name: "KICK MIC" },
-            { code: "0039", name: "KICK MIC" },
-            { code: "0040", name: "OH" },
-            { code: "0041", name: "OH" },
-            { code: "0042", name: "OH" },
-            { code: "0043", name: "OH" },
-            { code: "0044", name: "OH" },
-            { code: "0045", name: "OH" },
-            { code: "0046", name: "OH" },
-            { code: "0047", name: "OH" },
-            { code: "0048", name: "OH" },
-            { code: "0049", name: "QU 24" },
-            { code: "0050", name: "QU 24" },
-            { code: "0051", name: "QU 24" },
-            { code: "0052", name: "QU 24" },
-            { code: "0053", name: "QU 16" },
-            { code: "0054", name: "QU 16" },
-            { code: "0055", name: "QU 16" },
-            { code: "0056", name: "QU 16" },
-            { code: "0057", name: "CASE INST 1" },
-            { code: "0058", name: "CASE INST 2" },
-            { code: "0059", name: "CASE INST 3" },
-            { code: "0060", name: "CASE INST 4" },
-            { code: "0061", name: "CASE PB 1" },
-            { code: "0062", name: "CASE PB 2" },
-            { code: "0063", name: "CASE PB 3" },
-            { code: "0064", name: "CASE PB 4" },
-            { code: "0065", name: "GLD" },
-            { code: "0066", name: "JST" },
-            { code: "0067", name: "JST" },
-            { code: "0068", name: "JST" },
-            { code: "0069", name: "JST" },
-            { code: "0070", name: "MAKLET MP" },
-            { code: "0071", name: "MAKLET MP" },
-            { code: "0072", name: "MAKLET MP" },
-            { code: "0073", name: "MAKLET MP" },
-            { code: "0074", name: "HANDY" },
-            { code: "0075", name: "HANDY" },
-            { code: "0076", name: "HANDY" },
-            { code: "0077", name: "HANDY" }
-        ];
-        
+       const equipmentList = [
+    { code: "#0001", name: "SHURE SM 58" },
+    { code: "#0002", name: "SHURE SM 58" },
+    { code: "#0003", name: "SHURE SM 58" },
+    { code: "#0004", name: "SHURE SM 58" },
+    { code: "#0005", name: "SHURE SM 58" },
+    { code: "#0006", name: "SHURE SM 58" },
+    { code: "#0007", name: "SHURE SM 58" },
+    { code: "#0008", name: "SHURE SM 58" },
+    { code: "#0009", name: "SHURE SM 58" },
+    { code: "#0010", name: "SHURE SM 58" },
+    { code: "#0011", name: "SHURE SM 58" },
+    { code: "#0012", name: "SHURE SM 58" },
+    { code: "#0013", name: "SHURE SM 58" },
+    { code: "#0014", name: "SHURE SM 58" },
+    { code: "#0015", name: "SHURE SM 58" },
+    { code: "#0016", name: "SHURE SM 58" },
+    { code: "#0017", name: "SHURE SM 58" },
+    { code: "#0018", name: "SHURE SM 58" },
+    { code: "#0019", name: "SHURE SM 58" },
+    { code: "#0020", name: "SHURE SM 58" },
+    { code: "#0021", name: "SHURE SM 57" },
+    { code: "#0022", name: "SHURE SM 57" },
+    { code: "#0023", name: "SHURE SM 57" },
+    { code: "#0024", name: "SHURE SM 57" },
+    { code: "#0025", name: "SHURE SM 57" },
+    { code: "#0026", name: "SHURE SM 57" },
+    { code: "#0027", name: "SHURE SM 57" },
+    { code: "#0028", name: "SHURE SM 57" },
+    { code: "#0029", name: "SHURE SM 57" },
+    { code: "#0030", name: "SHURE SM 57" },
+    { code: "#0031", name: "SHURE SM 57" },
+    { code: "#0032", name: "SHURE SM 57" },
+    { code: "#0033", name: "SHURE SM 57" },
+    { code: "#0034", name: "SHURE SM 57" },
+    { code: "#0035", name: "SHURE SM 57" },
+    { code: "#0036", name: "KICK MIC" },
+    { code: "#0037", name: "KICK MIC" },
+    { code: "#0038", name: "KICK MIC" },
+    { code: "#0039", name: "KICK MIC" },
+    { code: "#0040", name: "OH" },
+    { code: "#0041", name: "OH" },
+    { code: "#0042", name: "OH" },
+    { code: "#0043", name: "OH" },
+    { code: "#0044", name: "OH" },
+    { code: "#0045", name: "OH" },
+    { code: "#0046", name: "OH" },
+    { code: "#0047", name: "OH" },
+    { code: "#0048", name: "OH" },
+    { code: "#0049", name: "QU 24" },
+    { code: "#0050", name: "QU 24" },
+    { code: "#0051", name: "QU 24" },
+    { code: "#0052", name: "QU 24" },
+    { code: "#0053", name: "QU 16" },
+    { code: "#0054", name: "QU 16" },
+    { code: "#0055", name: "QU 16" },
+    { code: "#0056", name: "QU 16" },
+    { code: "#0057", name: "CASE INST 1" },
+    { code: "#0058", name: "CASE INST 2" },
+    { code: "#0059", name: "CASE INST 3" },
+    { code: "#0060", name: "CASE INST 4" },
+    { code: "#0061", name: "CASE PB 1" },
+    { code: "#0062", name: "CASE PB 2" },
+    { code: "#0063", name: "CASE PB 3" },
+    { code: "#0064", name: "CASE PB 4" },
+    { code: "#0065", name: "GLD" },
+    { code: "#0066", name: "JST" },
+    { code: "#0067", name: "JST" },
+    { code: "#0068", name: "JST" },
+    { code: "#0069", name: "JST" },
+    { code: "#0070", name: "MAKLET MP" },
+    { code: "#0071", name: "MAKLET MP" },
+    { code: "#0072", name: "MAKLET MP" },
+    { code: "#0073", name: "MAKLET MP" },
+    { code: "#0074", name: "HANDY" },
+    { code: "#0075", name: "HANDY" },
+    { code: "#0076", name: "HANDY" },
+    { code: "#0077", name: "HANDY" }
+];
+
         const select = document.getElementById("equipment_select");
         equipmentList.forEach(item => {
             let option = document.createElement("option");
             option.value = item.code;
-            option.textContent = `${item.code} - ${item.name}`;
+            option.textContent = ${item.code} - ${item.name};
             select.appendChild(option);
         });
 
@@ -267,6 +299,51 @@ function addEquipment() {
     cell3.appendChild(deleteButton);
 
         }
+        document.getElementById("code_input").addEventListener("change", function() {
+    let code = this.value.trim();
+    this.value = ""; // נקה את השדה לאחר ההקלדה
+
+    let foundItem = equipmentList.find(item => item.code === code);
+    if (foundItem) {
+        select.value = code;
+        addEquipment();
+    } else {
+        alert("מקט לא מוכר: " + code);
+    }
+});
+function startScan() {
+    const html5QrCode = new Html5Qrcode("reader");
+
+    // הצגת קו סריקה
+    document.getElementById("scan-line").style.display = "block";
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        {
+            fps: 10,
+            qrbox: { width: 300, height: 100 } // מסגרת מלבנית
+        },
+        (decodedText, decodedResult) => {
+            html5QrCode.stop().then(() => {
+                document.getElementById("reader").innerHTML = "";
+                document.getElementById("scan-line").style.display = "none"; // הסתרת הקו
+            });
+
+            document.getElementById("ding-sound").play();
+            document.getElementById("code_input").value = decodedText;
+            document.getElementById("code_input").dispatchEvent(new Event('change'));
+        },
+        (errorMessage) => {
+            // אפשר להתעלם משגיאות סריקה רגעיות
+        }
+    ).catch(err => {
+        alert("שגיאה בהפעלת מצלמה: " + err);
+        document.getElementById("scan-line").style.display = "none"; // במקרה של שגיאה - להסתיר גם
+    });
+}
+
+
+
 
         function exportToCSV() {
     let table = document.getElementById("equipment_table");
@@ -278,14 +355,14 @@ function addEquipment() {
 
     let date = new Date().toISOString().split('T')[0]; // תאריך בפורמט YYYY-MM-DD
 
-    let csvContent = `שם הסאונדמן,מספר אישי,הרכב יוצא,תאריך\n${soundmanName},${soundmanId},${bandName},${date}\n\nמק"ט,מוצר,תאריך\n`;
+    let csvContent = שם הסאונדמן,מספר אישי,הרכב יוצא,תאריך\n${soundmanName},${soundmanId},${bandName},${date}\n\nמק"ט,מוצר,תאריך\n;
 
     rows.forEach(row => {
         let cells = Array.from(row.cells);
-        csvContent += `${cells[0].innerText},${cells[1].innerText},${date}\n`; // הוספת עמודת תאריך
+        csvContent += ${cells[0].innerText},${cells[1].innerText},${date}\n; // הוספת עמודת תאריך
     });
 
-    let fileName = `מפרט טכני - ${date} - ${bandName}.csv`;
+    let fileName = מפרט טכני - ${date} - ${bandName}.csv;
 
     let blob = new Blob([csvContent], { type: "text/csv" });
     let link = document.createElement("a");
@@ -322,56 +399,9 @@ function addEquipment() {
     let ws = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, " מפרט טכני");
 
-    let fileName = `מפרט טכני  - ${date} - ${bandName}.xlsx`;
+    let fileName = מפרט טכני  - ${date} - ${bandName}.xlsx;
     XLSX.writeFile(wb, fileName);
 }
-function sendToGoogleSheet() {
-    let table = document.getElementById("equipment_table");
-    let rows = Array.from(table.rows).slice(1);
-
-    let soundmanName = document.getElementById("soundman_name").value || "לא צויין";
-    let soundmanId = document.getElementById("soundman_id").value || "לא צויין";
-    let bandName = document.getElementById("band_name").value || "לא צויין";
-
-    if (rows.length === 0) {
-        alert("לא נבחר ציוד לשליחה!");
-        return;
-    }
-
-    let items = rows.map(row => {
-        let cells = row.cells;
-        return {
-            code: cells[0].innerText,
-            name: cells[1].innerText
-        };
-    });
-
-    let payload = {
-        soundmanName,
-        soundmanId,
-        bandName,
-        items
-    };
-
-    fetch("https://script.google.com/macros/s/AKfycbzqTX-Vom_rTxido6ANnk11xw20Kfc4OxJ7Pbmwxzh_Ycf9CUSC9YnTMIq3oXtAyOFW/exec", {
-    method: "POST",
-    body: JSON.stringify(payload),
-    headers: {
-        "Content-Type": "application/json"
-    }
-})
-
-        }
-    }).then(res => res.text())
-      .then(res => {
-        alert("הנתונים נשלחו בהצלחה!");
-        // אופציונלי: איפוס טופס
-      })
-      .catch(err => {
-        alert("שגיאה בשליחה: " + err);
-      });
-}
-
 
 </script>
 
